@@ -179,14 +179,11 @@ namespace Net.SF.StyleCopCmd.Core
         /// Adds Visual Studio Solution files to check. Visual Studio 2008
         /// is supported.
         /// </summary>
-        /// <param name="solutionsFiles">
-        /// A list of fully-qualified paths to Visual Studio solutions files.
-        /// </param>
+        /// <param name="solutionsFiles">A list of paths to Visual Studio solutions files.</param>
         /// <returns>This ReportBuilder.</returns>
-        public ReportBuilder WithSolutionsFiles(
-            IList<string> solutionsFiles)
+        public ReportBuilder WithSolutionsFiles(IList<string> solutionsFiles)
         {
-            this.SolutionFiles = solutionsFiles;
+            this.SolutionFiles = solutionsFiles?.Select(Path.GetFullPath).ToList();
             return this;
         }
 
@@ -194,28 +191,22 @@ namespace Net.SF.StyleCopCmd.Core
         /// Adds Visual Studio Project files to check. Visual Studio 2008
         /// is supported.
         /// </summary>
-        /// <param name="projectFiles">
-        /// A list of fully-qualified paths to Visual Studio project files.
-        /// </param>
+        /// <param name="projectFiles">A list of paths to Visual Studio project files.</param>
         /// <returns>This ReportBuilder.</returns>
-        public ReportBuilder WithProjectFiles(
-            IList<string> projectFiles)
+        public ReportBuilder WithProjectFiles(IList<string> projectFiles)
         {
-            this.ProjectFiles = projectFiles;
+            this.ProjectFiles = projectFiles?.Select(Path.GetFullPath).ToList();
             return this;
         }
 
         /// <summary>
         /// Adds directories to check.
         /// </summary>
-        /// <param name="directories">
-        /// A list of fully-qualifieid paths to directories.
-        /// </param>
+        /// <param name="directories">A list of directory paths.</param>
         /// <returns>This ReportBuilder.</returns>
-        public ReportBuilder WithDirectories(
-            IList<string> directories)
+        public ReportBuilder WithDirectories(IList<string> directories)
         {
-            this.Directories = directories;
+            this.Directories = directories?.Select(Path.GetFullPath).ToList();
             return this;
         }
 
@@ -224,10 +215,9 @@ namespace Net.SF.StyleCopCmd.Core
         /// </summary>
         /// <param name="files">A list of file paths.</param>
         /// <returns>This ReportBuilder.</returns>
-        public ReportBuilder WithFiles(
-            IList<string> files)
+        public ReportBuilder WithFiles(IList<string> files)
         {
-            this.Files = files.Select(Path.GetFullPath).ToList();
+            this.Files = files?.Select(Path.GetFullPath).ToList();
             return this;
         }
 
