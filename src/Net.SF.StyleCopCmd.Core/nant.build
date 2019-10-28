@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    NOTE 1
+    make sure to include the default namespace so that visual studio
+    will turn on intellisense for this nant build file 
+    
+    NOTE 2
+    for non .NET developers: for all intents and purpose a solution in 
+    VisualStudio (VS) is the same thing as a top-level project in most other
+    languages, and VS project is the same as a package. in order to make it 
+    easier for communicate amonst .NET developers working with both VS and
+    NAnt, this NAnt build file will refer to the top-level project as a solution
+    and packages as projects.
+-->
+<project default="all"
+         basedir="."
+         xmlns="http://nant.sourceforge.net/release/latest/nant.xsd">
+
+    <!-- include solution's default properties -->
+    <include buildfile="../../conf/default.properties" />
+
+    <!-- include solution's local properties -->
+    <include buildfile="../../${conf}/local.properties" />
+
+    <!-- include project's default properties -->
+    <include buildfile="${conf}/default.properties" />
+
+    <!-- include project's local properties -->
+    <include buildfile="${conf}/local.properties" />
+
+    <!-- include solution's project properties -->
+    <include buildfile="../../${conf}/project.properties" />
+
+    <!-- include nant tasks -->
+    <include buildfile="../../nant.tasks" />
+
+    <!-- include nant targets -->
+    <include buildfile="../../nant.targets" />
+
+    <!-- do it all: build, test, docs, dist -->
+    <target name="all"
+            depends="init,build,test,dist,docs" />
+
+    <!-- clean this project -->
+    <target name="clean">
+        <delete dir="${build}" />
+        <delete dir="${docs}" />
+        <delete dir="${dist}" />
+        <delete dir="Properties" />
+    </target>
+
+    <!-- init this project -->
+    <target name="init"
+            if="${not environment::variable-exists(proj.name+'.'+target::get-current-target())}">
+        <mkdir dir="${build}" />
+        <mkdir dir="Properties"
+               failonerror="false"/>
+        <mkdir dir="${docs}" />
+        <mkdir dir="${docs}/fxcop"/>
+        <mkdir dir="${dist}" />
+
+        <setenv name="${proj.name}.${target::get-current-target()}"
+                value="true" />
+    </target>
+
+    <!-- build the main assembly if it is not up to date -->
+    <target name="build"
+            depends="init"
+            if="${not environment::variable-exists(proj.name+'.'+target::get-current-target())}">
+
+        <call target="compile"
+              cascade="false" />
+
+        <setenv name="${proj.name}.${target::get-current-target()}"
+                value="true" />
+
+    </target>
+
+    <!-- run unit tests on this project -->
+    <target name="test"
+            depends="init,build"
+            if="${not environment::variable-exists(proj.name+'.'+target::get-current-target())}">
+
+        <!-- the path to this project's unit test build file-->
+        <property name="test.buildfile"
+                  value="../../test/${proj.name}.Test/nant.build"/>
+
+        <if test="${not file::exists(test.buildfile)}">
+            <echo message="Unit test build file does not exist at ${test.buildfile}"/>
+        </if>
+
+        <if test="${file::exists(test.buildfile)}">
+
+            <!-- go ahead and run this project's unit tests-->
+            <nant buildfile="${test.buildfile}"
+                  target="test" />
+
+        </if>
+
+        <setenv name="${proj.name}.${target::get-current-target()}"
+                value="true" />
+
+    </target>
+
+    <!-- generate the project reports and documentation -->
+    <target name="docs"
+            depends="init,build"
+            if="${not environment::variable-exists(proj.name+'.'+target::get-current-target())}">
+
+        <call target="fxcop"
+              cascade="false" />
+
+        <setenv name="${proj.name}.${target::get-current-target()}"
+                value="true" />
+
+    </target>
+
+    <!-- package this project's binary output for distribution -->
+    <target name="dist"
+            depends="init,build,test"
+            if="${not environment::variable-exists(proj.name+'.'+target::get-current-target())}">
+
+        <!-- clean out the dist dir -->
+        <delete includeemptydirs ="false">
+            <fileset basedir="${dist}">
+                <include name="*"/>
+            </fileset>
+        </delete>
+
+        <!-- zip up the binary output of this project -->
+        <zip zipfile="${dist}/${csc.output.filename}-bin-${proj.version}.zip"
+             ziplevel="9">
+            <fileset basedir="${build}">
+                <include name="**/*" />
+            </fileset>
+        </zip>
+
+        <setenv name="${proj.name}.${target::get-current-target()}"
+                value="true" />
+
+    </target>
+
+</project>

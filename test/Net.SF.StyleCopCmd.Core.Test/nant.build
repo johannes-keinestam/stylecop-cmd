@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    NOTE 1
+    make sure to include the default namespace so that visual studio
+    will turn on intellisense for this nant build file
+
+    NOTE 2
+    for non .NET developers: for all intents and purpose a solution in
+    VisualStudio (VS) is the same thing as a top-level project in most other
+    languages, and VS project is the same as a package. in order to make it
+    easier for communicate amonst .NET developers working with both VS and
+    NAnt, this NAnt build file will refer to the top-level project as a solution
+    and packages as projects.
+-->
+<project default="all"
+         basedir="."
+         xmlns="http://nant.sourceforge.net/release/latest/nant.xsd">
+
+    <!-- include solution's default properties -->
+    <include buildfile="../../conf/default.properties" />
+
+    <!-- include solution's local properties -->
+    <include buildfile="../../${conf}/local.properties" />
+
+    <!-- include project's default properties -->
+    <include buildfile="${conf}/default.properties" />
+
+    <!-- include project's local properties -->
+    <include buildfile="${conf}/local.properties" />
+
+    <!-- include solution's project properties -->
+    <include buildfile="../../${conf}/project.properties" />
+
+    <!-- include nant tasks -->
+    <include buildfile="../../nant.tasks" />
+
+    <!-- include nant targets -->
+    <include buildfile="../../nant.targets" />
+
+    <!-- do it all: build, docs, test -->
+    <target name="all"
+            depends="build,test,docs">
+    </target>
+
+    <!-- clean this project -->
+    <target name="clean">
+        <delete dir="${build}" />
+        <delete dir="${docs}" />
+        <delete dir="Properties" />
+    </target>
+
+    <!-- init this project -->
+    <target name="init"
+            if="${not environment::variable-exists(proj.name+'.'+target::get-current-target())}">
+        <mkdir dir="${build}" />
+        <mkdir dir="${build}/coverage" />
+        <mkdir dir="Properties" />
+        <mkdir dir="${docs}" />
+        <mkdir dir="${docs}/fxcop" />
+
+        <setenv name="${proj.name}.${target::get-current-target()}"
+                value="true" />
+    </target>
+
+    <!-- run unit tests -->
+    <target name="test"
+            depends="init,build"
+            if="${not environment::variable-exists(proj.name+'.'+target::get-current-target())}">
+
+        <call target="unitTest"
+              cascade="false" />
+
+        <setenv name="${proj.name}.${target::get-current-target()}"
+                value="true" />
+    </target>
+
+    <!-- build this project if it is not up to date -->
+    <target name="build"
+            depends="init"
+            if="${not environment::variable-exists(proj.name+'.'+target::get-current-target())}">
+
+        <!-- the path to the source project's  build file-->
+        <property name="test.srcproj.buildfile"
+                  value="${proj.srcproj.path}/nant.build"/>
+
+        <if test="${not file::exists(test.srcproj.buildfile)}">
+            <echo message="Source project build file does not exist at ${test.srcproj.buildfile}"/>
+        </if>
+
+        <if test="${file::exists(test.srcproj.buildfile)}">
+
+            <!-- go ahead and build the source project -->
+            <nant buildfile="${test.srcproj.buildfile}"
+                  target="build"/>
+
+        </if>
+
+        <!-- copy dependencies into the build directory -->
+        <copy todir="${build}"
+              flatten="true">
+            <fileset basedir="${lib.dir}">
+                <patternset refid="lib.test" />
+            </fileset>
+        </copy>
+        <copy todir="${build}">
+            <fileset>
+                <include name="${proj.srcproj.path}/${build}/**/*" />
+            </fileset>
+        </copy>
+
+        <call target="compile"
+              cascade="false" />
+
+        <setenv name="${proj.name}.${target::get-current-target()}"
+                value="true" />
+
+    </target>
+
+    <!-- generate the project reports and documentation -->
+    <target name="docs"
+            depends="init,build"
+            if="${not environment::variable-exists(proj.name+'.'+target::get-current-target())}">
+
+        <call target="fxcop"
+              cascade="false" />
+
+        <setenv name="${proj.name}.${target::get-current-target()}"
+                value="true" />
+
+    </target>
+
+</project>
