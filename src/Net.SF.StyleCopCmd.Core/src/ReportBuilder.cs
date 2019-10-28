@@ -222,14 +222,12 @@ namespace Net.SF.StyleCopCmd.Core
         /// <summary>
         /// Adds files to check.
         /// </summary>
-        /// <param name="files">
-        /// A list of fully-qualified paths to files.
-        /// </param>
+        /// <param name="files">A list of file paths.</param>
         /// <returns>This ReportBuilder.</returns>
         public ReportBuilder WithFiles(
             IList<string> files)
         {
-            this.Files = files;
+            this.Files = files.Select(Path.GetFullPath).ToList();
             return this;
         }
 
