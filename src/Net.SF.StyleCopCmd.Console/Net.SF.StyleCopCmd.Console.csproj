@@ -34,18 +34,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\dotnetcli-0.1.1\dotnetcli-0.1.1.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.StyleCop, Version=4.3.0.8, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\stylecop\Microsoft.StyleCop.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.StyleCop.CSharp, Version=4.3.0.8, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\stylecop\Microsoft.StyleCop.CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.StyleCop.CSharp.Rules, Version=4.3.0.8, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\stylecop\Microsoft.StyleCop.CSharp.Rules.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
     </Reference>
@@ -53,6 +41,15 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="StyleCop">
+      <HintPath>..\..\packages\StyleCop.6.1.0\lib\net40\StyleCop.dll</HintPath>
+    </Reference>
+    <Reference Include="StyleCop.CSharp">
+      <HintPath>..\..\packages\StyleCop.CSharp.6.1.0\lib\net40\StyleCop.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="StyleCop.CSharp.Rules">
+      <HintPath>..\..\packages\StyleCop.CSharp.Rules.6.1.0\lib\net40\StyleCop.CSharp.Rules.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
@@ -62,6 +59,9 @@
     <None Include="conf\default.properties" />
     <None Include="conf\local.properties" />
     <None Include="nant.build" />
+    <None Include="packages.config" />
+    <None Include="StyleCop.CSharp.Rules.targets" />
+    <None Include="Settings.StyleCop" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Net.SF.StyleCopCmd.Core\Net.SF.StyleCopCmd.Core.csproj">
@@ -80,4 +80,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="..\..\packages\StyleCop.CSharp.Rules.6.1.0\build\StyleCop.CSharp.Rules.targets" Condition="Exists('..\..\packages\StyleCop.CSharp.Rules.6.1.0\build\StyleCop.CSharp.Rules.targets')" />
 </Project>

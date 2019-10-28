@@ -30,18 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.StyleCop, Version=4.3.0.8, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\stylecop\Microsoft.StyleCop.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.StyleCop.CSharp, Version=4.3.0.8, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\stylecop\Microsoft.StyleCop.CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.StyleCop.CSharp.Rules, Version=4.3.0.8, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\stylecop\Microsoft.StyleCop.CSharp.Rules.dll</HintPath>
-    </Reference>
     <Reference Include="NAnt.Core, Version=0.86.2898.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\nant-0.86-beta1\NAnt.Core.dll</HintPath>
@@ -55,6 +43,15 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="StyleCop">
+      <HintPath>..\..\packages\StyleCop.6.1.0\lib\net40\StyleCop.dll</HintPath>
+    </Reference>
+    <Reference Include="StyleCop.CSharp">
+      <HintPath>..\..\packages\StyleCop.CSharp.6.1.0\lib\net40\StyleCop.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="StyleCop.CSharp.Rules">
+      <HintPath>..\..\packages\StyleCop.CSharp.Rules.6.1.0\lib\net40\StyleCop.CSharp.Rules.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -83,6 +80,9 @@
     <None Include="src\StyleCopReport.xss">
       <DependentUpon>StyleCopReport.xsd</DependentUpon>
     </None>
+    <None Include="packages.config" />
+    <None Include="StyleCop.CSharp.Rules.targets" />
+    <None Include="Settings.StyleCop" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -92,4 +92,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="..\..\packages\StyleCop.CSharp.Rules.6.1.0\build\StyleCop.CSharp.Rules.targets" Condition="Exists('..\..\packages\StyleCop.CSharp.Rules.6.1.0\build\StyleCop.CSharp.Rules.targets')" />
 </Project>
