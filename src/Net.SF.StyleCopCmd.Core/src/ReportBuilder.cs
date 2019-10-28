@@ -624,28 +624,32 @@ namespace Net.SF.StyleCopCmd.Core
         /// </param>
         private void AddSolutionFile(string solutionFilePath)
         {
+            var solutionFileDir = Path.GetDirectoryName(Path.GetFullPath(solutionFilePath));
+
             // Add a solutions row
-            var sr = this.Report.Solutions.AddSolutionsRow(
+            var solutionsRow = this.Report.Solutions.AddSolutionsRow(
                 solutionFilePath,
                 Path.GetFileNameWithoutExtension(solutionFilePath));
 
             // Get a list of the CSharp projects in the solutions file
             // and parse the project files.
-            var sfin = File.ReadAllText(solutionFilePath);
-            var smatches = Regex.Matches(
-                sfin,
+            var solutionFileContent = File.ReadAllText(solutionFilePath);
+            var projectMatches = Regex.Matches(
+                solutionFileContent,
                 @"^Project\(.*?\) = "".*?"", ""(?<ppath>.*?.csproj)""",
                 RegexOptions.Multiline | RegexOptions.IgnoreCase);
-            foreach (Match sm in smatches)
+
+            foreach (Match projectMatch in projectMatches)
             {
-                var ppath =
-                    Path.GetFullPath(
-                        Path.GetDirectoryName(
-                            Path.GetFullPath(solutionFilePath)))
-                    + Path.DirectorySeparatorChar + sm.Groups["ppath"].Value;
+                var relativeProjectPath = projectMatch.Groups["ppath"].Value;
+                // The .sln file always uses Windows-style directory separators,
+                // but OS might use some other format, so we replace them here.
+                relativeProjectPath = relativeProjectPath.Replace('\\', Path.DirectorySeparatorChar);
+
+                var projectFilePath = Path.Combine(solutionFileDir, relativeProjectPath);
                 this.AddProjectFile(
-                    ppath,
-                    sr);
+                    projectFilePath,
+                    solutionsRow);
             }
         }
 
