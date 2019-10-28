@@ -444,8 +444,9 @@ namespace Net.SF.StyleCopCmd.Core
             var offp = Path.GetFullPath(outputXmlFile);
             var f = string.Format(
                 CultureInfo.CurrentCulture,
-                "{0}\\{1}.violations.xml",
+                "{0}{1}{2}.violations.xml",
                 Path.GetFullPath(Path.GetDirectoryName(offp)),
+                Path.DirectorySeparatorChar,
                 Path.GetFileNameWithoutExtension(outputXmlFile));
             return f;
         }
@@ -463,8 +464,9 @@ namespace Net.SF.StyleCopCmd.Core
             xt.Load(this.TransformFile);
             var htmlout = string.Format(
                 CultureInfo.CurrentCulture,
-                "{0}\\{1}.html",
+                "{0}{1}{2}.html",
                 Path.GetFullPath(Path.GetDirectoryName(offp)),
+                Path.DirectorySeparatorChar,
                 Path.GetFileNameWithoutExtension(outputXmlFile));
             xt.Transform(
                 outputXmlFile,
@@ -640,7 +642,7 @@ namespace Net.SF.StyleCopCmd.Core
                     Path.GetFullPath(
                         Path.GetDirectoryName(
                             Path.GetFullPath(solutionFilePath)))
-                    + "\\" + sm.Groups["ppath"].Value;
+                    + Path.DirectorySeparatorChar + sm.Groups["ppath"].Value;
                 this.AddProjectFile(
                     ppath,
                     sr);
@@ -701,7 +703,7 @@ namespace Net.SF.StyleCopCmd.Core
             {
                 var fpath =
                     Path.GetFullPath(Path.GetDirectoryName(projectFilePath))
-                    + "\\" + n.Attribute(XName.Get("Include")).Value;
+                    + Path.DirectorySeparatorChar + n.Attribute(XName.Get("Include")).Value;
 
                 this.AddFile(
                     fpath,
