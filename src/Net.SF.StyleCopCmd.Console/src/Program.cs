@@ -155,6 +155,7 @@ namespace Net.SF.StyleCopCmd.Console
             Opts.AddOption(
                 OptionBuilder.Factory
                     .WithLongOpt("outputXmlFile")
+                    .IsRequired()
                     .HasArg()
                     .WithArgName("filePath")
                     .WithDescription("The file the XML output is written to")
@@ -207,10 +208,9 @@ namespace Net.SF.StyleCopCmd.Console
                 return null;
             }
 
-            if (!(cl.HasOption("sf") ||
-                  cl.HasOption("pf") ||
-                  cl.HasOption("d") ||
-                  cl.HasOption("f")))
+            var hasInputFiles = cl.HasOption("sf") || cl.HasOption("pf") || cl.HasOption("d") || cl.HasOption("f");
+            var hasOutputFile = cl.HasOption("of");
+            if (!hasInputFiles || !hasOutputFile)
             {
                 return null;
             }
