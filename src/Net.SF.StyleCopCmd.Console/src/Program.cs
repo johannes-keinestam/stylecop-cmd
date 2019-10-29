@@ -45,7 +45,7 @@ namespace Net.SF.StyleCopCmd.Console
             }
 
             new StyleCopReport().ReportBuilder()
-                .WithStyleCopSettingsFile(cl.GetOptionValue("s"))
+                .WithStyleCopSettingsFile(cl.GetOptionValue("sc"))
                 .WithRecursion(cl.HasOption("r"))
                 .WithSolutionsFiles(cl.GetOptionValues("sf"))
                 .WithProjectFiles(cl.GetOptionValues("pf"))
