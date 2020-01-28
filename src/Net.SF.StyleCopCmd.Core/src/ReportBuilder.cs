@@ -96,7 +96,7 @@ namespace Net.SF.StyleCopCmd.Core
         /// <summary>
         /// Gets or sets a list of files to check.
         /// </summary>
-        private IList<string> Files
+        private List<string> Files
         {
             get;
             set;
@@ -217,7 +217,35 @@ namespace Net.SF.StyleCopCmd.Core
         /// <returns>This ReportBuilder.</returns>
         public ReportBuilder WithFiles(IList<string> files)
         {
-            this.Files = files?.Select(Path.GetFullPath).ToList();
+            this.Files = this.Files ?? new List<string>();
+            var fullFilePaths = files?.Select(Path.GetFullPath) ?? Enumerable.Empty<string>();
+            this.Files.AddRange(fullFilePaths);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds list of files to check.
+        /// </summary>
+        /// <param name="file">A path of a file containing a list of file paths.</param>
+        /// <returns>This ReportBuilder.</returns>
+        public ReportBuilder WithFileList(string file)
+        {
+            if (file != null)
+            {
+                this.Files = this.Files ?? new List<string>();
+
+                try
+                {
+                    var lines = File.ReadAllLines(Path.GetFullPath(file));
+                    var fullFilePaths = lines.Select(line => Path.GetFullPath(line.Trim()));
+                    this.Files.AddRange(fullFilePaths);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"Could not read file list from file {Path.GetFullPath(file)} due to: {e}");
+                }
+            }
+
             return this;
         }
 

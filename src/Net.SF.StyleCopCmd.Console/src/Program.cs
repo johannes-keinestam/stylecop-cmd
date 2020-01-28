@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright 
-//  file="Program.cs" 
+// <copyright
+//  file="Program.cs"
 //  company="Andrew Kutz">
 //  Copyright (c) Andrew Kutz. All rights reserved.
 // </copyright>
@@ -51,6 +51,7 @@ namespace Net.SF.StyleCopCmd.Console
                 .WithProjectFiles(cl.GetOptionValues("pf"))
                 .WithDirectories(cl.GetOptionValues("d"))
                 .WithFiles(cl.GetOptionValues("f"))
+                .WithFileList(cl.GetOptionValue("fl"))
                 .WithIgnorePatterns(cl.GetOptionValues("ifp"))
                 .WithTransformFile(cl.GetOptionValue("tf"))
                 .WithOutputEventHandler(OutputGenerated)
@@ -136,6 +137,14 @@ namespace Net.SF.StyleCopCmd.Console
 
             Opts.AddOption(
                 OptionBuilder.Factory
+                             .WithLongOpt("fileList")
+                             .HasArgs()
+                             .WithArgName("fileListPath")
+                             .WithDescription("Text file containing a list of files to check, one file per line")
+                             .Create("fl"));
+
+            Opts.AddOption(
+                OptionBuilder.Factory
                     .WithLongOpt("styleCopSettingsFile")
                     .HasArg()
                     .WithArgName("filePath")
@@ -193,9 +202,7 @@ namespace Net.SF.StyleCopCmd.Console
 
             try
             {
-                cl = pp.Parse(
-                    Opts,
-                    args);
+                cl = pp.Parse(Opts, args);
             }
             catch (ParseException e)
             {
@@ -208,7 +215,7 @@ namespace Net.SF.StyleCopCmd.Console
                 return null;
             }
 
-            var hasInputFiles = cl.HasOption("sf") || cl.HasOption("pf") || cl.HasOption("d") || cl.HasOption("f");
+            var hasInputFiles = cl.HasOption("sf") || cl.HasOption("pf") || cl.HasOption("fl") || cl.HasOption("d") || cl.HasOption("f");
             var hasOutputFile = cl.HasOption("of");
             if (!hasInputFiles || !hasOutputFile)
             {
