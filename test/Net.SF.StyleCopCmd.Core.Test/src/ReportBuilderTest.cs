@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------
-// <copyright 
-//  file="ReportBuilderTest.cs" 
+// <copyright
+//  file="ReportBuilderTest.cs"
 //  company="Schley Andrew Kutz">
 //  Copyright (c) Schley Andrew Kutz. All rights reserved.
 // </copyright>
@@ -8,6 +8,9 @@
 //   <author>Schley Andrew Kutz</author>
 // </authors>
 //-----------------------------------------------------------------------
+
+using System;
+
 namespace Net.SF.StyleCopCmd.Core.Test
 {
     using System.Collections.Generic;
@@ -33,7 +36,7 @@ namespace Net.SF.StyleCopCmd.Core.Test
             rb.WithSolutionsFiles(
                 new[]
                 {
-                    @"c:\foo.txt"
+                    Path.Combine(GetTestSolutionPath(), "foo.txt")
                 });
             var sf = GetPrivateProperty<IList<string>>(
                 rb,
@@ -42,7 +45,7 @@ namespace Net.SF.StyleCopCmd.Core.Test
                 1,
                 sf.Count);
             Assert.AreEqual(
-                @"c:\foo.txt",
+                Path.Combine(GetTestSolutionPath(), "foo.txt"),
                 sf[0]);
         }
 
@@ -57,7 +60,7 @@ namespace Net.SF.StyleCopCmd.Core.Test
             rb.WithProjectFiles(
                 new[]
                 {
-                    @"c:\foo.txt"
+                    Path.Combine(GetTestSolutionPath(), "foo.txt")
                 });
             var sf = GetPrivateProperty<IList<string>>(
                 rb,
@@ -66,7 +69,7 @@ namespace Net.SF.StyleCopCmd.Core.Test
                 1,
                 sf.Count);
             Assert.AreEqual(
-                @"c:\foo.txt",
+                Path.Combine(GetTestSolutionPath(), "foo.txt"),
                 sf[0]);
         }
 
@@ -81,8 +84,8 @@ namespace Net.SF.StyleCopCmd.Core.Test
             rb.WithDirectories(
                 new[]
                 {
-                    @"c:\windows",
-                    @"c:\program files"
+                    GetTestSolutionPath(),
+                    Path.Combine(GetTestSolutionPath(), "dummy")
                 });
             var sf = GetPrivateProperty<IList<string>>(
                 rb,
@@ -91,10 +94,10 @@ namespace Net.SF.StyleCopCmd.Core.Test
                 2,
                 sf.Count);
             Assert.AreEqual(
-                @"c:\windows",
+                GetTestSolutionPath(),
                 sf[0]);
             Assert.AreEqual(
-                @"c:\program files",
+                Path.Combine(GetTestSolutionPath(), "dummy"),
                 sf[1]);
         }
 
@@ -109,8 +112,8 @@ namespace Net.SF.StyleCopCmd.Core.Test
             rb.WithFiles(
                 new[]
                 {
-                    @"c:\windows\foo1.txt",
-                    @"c:\program files\foo2.txt"
+                    Path.Combine(GetTestSolutionPath(), "foo1.txt"),
+                    Path.Combine(GetTestSolutionPath(), "foo2.txt")
                 });
             var sf = GetPrivateProperty<IList<string>>(
                 rb,
@@ -119,15 +122,15 @@ namespace Net.SF.StyleCopCmd.Core.Test
                 2,
                 sf.Count);
             Assert.AreEqual(
-                @"c:\windows\foo1.txt",
+                Path.Combine(GetTestSolutionPath(), "foo1.txt"),
                 sf[0]);
             Assert.AreEqual(
-                @"c:\program files\foo2.txt",
+                Path.Combine(GetTestSolutionPath(), "foo2.txt"),
                 sf[1]);
         }
 
         /// <summary>
-        /// Tests the WithIngorePatterns method.
+        /// Tests the WithIgnorePatterns method.
         /// </summary>
         [Test]
         public void WithIgnorePatternsTest()
@@ -203,12 +206,12 @@ namespace Net.SF.StyleCopCmd.Core.Test
         {
             var scr = new StyleCopReport();
             var rb = scr.ReportBuilder();
-            rb.WithStyleCopSettingsFile("c:\\scs.settings");
+            rb.WithStyleCopSettingsFile(Path.Combine(GetTestSolutionPath(), "scs.settings"));
             var sf = GetPrivateProperty<string>(
                 rb,
                 "StyleCopSettingsFile");
             Assert.AreEqual(
-                @"c:\scs.settings",
+                Path.Combine(GetTestSolutionPath(), "scs.settings"),
                 sf);
         }
 
@@ -220,12 +223,12 @@ namespace Net.SF.StyleCopCmd.Core.Test
         {
             var scr = new StyleCopReport();
             var rb = scr.ReportBuilder();
-            rb.WithTransformFile("c:\\StyleCopReport.xsl");
+            rb.WithTransformFile(Path.Combine(GetTestSolutionPath(), "StyleCopReport.xsl"));
             var sf = GetPrivateProperty<string>(
                 rb,
                 "TransformFile");
             Assert.AreEqual(
-                @"c:\StyleCopReport.xsl",
+                Path.Combine(GetTestSolutionPath(), "StyleCopReport.xsl"),
                 sf);
         }
 
@@ -237,13 +240,13 @@ namespace Net.SF.StyleCopCmd.Core.Test
         {
             var scr = new StyleCopReport();
             var rb = scr.ReportBuilder();
-            var sf = GetTestSolutionPath() + @"\StyleCopTestProject.sln";
-            
+            var sf = Path.Combine(GetTestSolutionPath(), "StyleCopTestProject.sln");
+
             var t = rb.GetType();
             var mi = t.GetMethod(
                 "AddSolutionFile",
                 BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod);
-            
+
             // Invoke the method.
             mi.Invoke(
                 rb,
@@ -268,8 +271,7 @@ namespace Net.SF.StyleCopCmd.Core.Test
         {
             var scr = new StyleCopReport();
             var rb = scr.ReportBuilder();
-            var sf = GetTestSolutionPath() + 
-                @"\StyleCopTestProject\StyleCopTestProject.csproj";
+            var sf = Path.Combine(GetTestSolutionPath(), "StyleCopTestProject", "StyleCopTestProject.csproj");
 
             var t = rb.GetType();
             var mi = t.GetMethod(
@@ -324,26 +326,25 @@ namespace Net.SF.StyleCopCmd.Core.Test
         /// </returns>
         private static string GetTestSolutionPath()
         {
-            var d = new DirectoryInfo(".");
+            var parentDirectory = new DirectoryInfo(".");
 
             // Move backwards to the root of the solution.
-            while (d != null)
+            while (parentDirectory != null)
             {
                 // Is the solution in this directory?
-                if (d.GetFiles().FirstOrDefault(f => f.Extension == ".sln") !=
-                    null)
+                if (parentDirectory.GetFiles().FirstOrDefault(f => f.Extension == ".sln") != null)
                 {
                     break;
                 }
 
-                d = d.Parent;
+                parentDirectory = parentDirectory.Parent;
             }
 
-            var r = d.FullName +
-                    @"\test\Net.SF.StyleCopCmd.Core.Test" +
-                    @"\data\StyleCopTestProject";
-
-            return r;
+            if (parentDirectory == null)
+            {
+                throw new Exception("Could not find project folder.");
+            }
+            return Path.Combine(parentDirectory.FullName, "test", "Net.SF.StyleCopCmd.Core.Test", "data", "StyleCopTestProject");
         }
     }
 }
