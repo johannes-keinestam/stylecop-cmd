@@ -21,6 +21,16 @@ namespace Net.SF.StyleCopCmd.Console
     public static class Program
     {
         /// <summary>
+        /// Exit codes that this program can produce.
+        /// </summary>
+        private enum ExitCodes
+        {
+            SuccessNoViolations,
+            SuccessWithViolations,
+            Failure
+        }
+
+        /// <summary>
         /// The command-line options for this application.
         /// </summary>
         private static readonly Options Opts = new Options();
@@ -28,10 +38,10 @@ namespace Net.SF.StyleCopCmd.Console
         /// <summary>
         /// The entry-point method for this application.
         /// </summary>
-        /// <param name="args">
-        /// The command line arguments passed to this method.
-        /// </param>
-        private static void Main(string[] args)
+        /// <param name="args">The command line arguments passed to this method.</param>
+        /// <returns>The exit code of the program.</returns>
+        ///
+        private static int Main(string[] args)
         {
             // Initialize the command line options.
             InitOptions();
@@ -41,21 +51,30 @@ namespace Net.SF.StyleCopCmd.Console
             if (cl == null)
             {
                 PrintUsageAndHelp();
-                return;
+                return (int)ExitCodes.Failure;
             }
 
-            new StyleCopReport().ReportBuilder()
-                .WithStyleCopSettingsFile(cl.GetOptionValue("sc"))
-                .WithRecursion(cl.HasOption("r"))
-                .WithSolutionsFiles(cl.GetOptionValues("sf"))
-                .WithProjectFiles(cl.GetOptionValues("pf"))
-                .WithDirectories(cl.GetOptionValues("d"))
-                .WithFiles(cl.GetOptionValues("f"))
-                .WithFileList(cl.GetOptionValue("fl"))
-                .WithIgnorePatterns(cl.GetOptionValues("ifp"))
-                .WithTransformFile(cl.GetOptionValue("tf"))
-                .WithOutputEventHandler(OutputGenerated)
-                .Create(cl.GetOptionValue("of"));
+            try
+            {
+                var violationCount = new StyleCopReport().ReportBuilder()
+                                    .WithStyleCopSettingsFile(cl.GetOptionValue("sc"))
+                                    .WithRecursion(cl.HasOption("r"))
+                                    .WithSolutionsFiles(cl.GetOptionValues("sf"))
+                                    .WithProjectFiles(cl.GetOptionValues("pf"))
+                                    .WithDirectories(cl.GetOptionValues("d"))
+                                    .WithFiles(cl.GetOptionValues("f"))
+                                    .WithFileList(cl.GetOptionValue("fl"))
+                                    .WithIgnorePatterns(cl.GetOptionValues("ifp"))
+                                    .WithTransformFile(cl.GetOptionValue("tf"))
+                                    .WithOutputEventHandler(OutputGenerated)
+                                    .Create(cl.GetOptionValue("of"));
+                return (int)(violationCount == 0 ? ExitCodes.SuccessNoViolations : ExitCodes.SuccessWithViolations);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("UNHANDLED EXCEPTION:\n" + e);
+                return (int)ExitCodes.Failure;
+            }
         }
 
         /// <summary>

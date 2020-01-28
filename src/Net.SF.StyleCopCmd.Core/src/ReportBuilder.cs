@@ -350,19 +350,13 @@ namespace Net.SF.StyleCopCmd.Core
         /// <summary>
         /// Creates a StyleCop report.
         /// </summary>
-        /// <param name="outputXmlFile">
-        /// The fully-qualified path to write the output of the report to.
-        /// </param>
-        public void Create(string outputXmlFile)
+        /// <param name="outputXmlFile">The fully-qualified path to write the output of the report to.</param>
+        /// <returns>The number of violations encountered.</returns>
+        public int Create(string outputXmlFile)
         {
             // Create a StyleCop configuration specifying the configuration
             // symbols to use for this report.
-            var cfg = new Configuration(
-                this.ProcessorSymbols != null
-                    ?
-                        this.ProcessorSymbols.ToArray()
-                    :
-                        null);
+            var cfg = new Configuration(this.ProcessorSymbols?.ToArray());
 
             // Create a new StyleCop console used to do the check.
             var scc = new StyleCopConsole(
@@ -440,9 +434,7 @@ namespace Net.SF.StyleCopCmd.Core
 
             scc.ViolationEncountered += this.ViolationEncountered;
 
-            scc.Start(
-                cps,
-                true);
+            scc.Start(cps, true);
 
             if (this.OutputGenerated != null)
             {
@@ -458,6 +450,8 @@ namespace Net.SF.StyleCopCmd.Core
             {
                 this.Transform(outputXmlFile);
             }
+
+            return this.Report?.Violations.Count ?? 0;
         }
 
         /// <summary>
