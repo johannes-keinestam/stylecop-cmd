@@ -3,3 +3,6 @@ src/**/obj
 test/Net.SF.StyleCopCmd.Core.Test/obj
 .vs
 .DS_Store
+packages/
+.idea/
+test/Net.SF.StyleCopCmd.Core.Test/bin/
